@@ -17,7 +17,7 @@ typedef struct {
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
-static void create_buffer_mirror(cirbuf_t *cb)
+static int create_buffer_mirror(cirbuf_t *cb)
 {
     char path[] = "/tmp/cirbuf-XXXXXX";
     int fd = mkstemp(path);
@@ -29,16 +29,23 @@ static void create_buffer_mirror(cirbuf_t *cb)
     cb->data = mmap(NULL, cb->size << 1, PROT_NONE, MAP_ANONYMOUS | MAP_PRIVATE,
                     -1, 0);
     /* FIXME: validate if cb->data != MAP_FAILED */
+    if (cb->data == MAP_FAILED)
+        return -1;
 
     void *address = mmap(cb->data, cb->size, PROT_READ | PROT_WRITE,
                          MAP_FIXED | MAP_SHARED, fd, 0);
     /* FIXME: validate if address == cb->data */
+    if (address != cb->data)
+        return -1;
 
     address = mmap(cb->data + cb->size, cb->size, PROT_READ | PROT_WRITE,
                    MAP_FIXED | MAP_SHARED, fd, 0);
     /* FIXME: validate if address == cb->data + cb->size */
+    if (address != cb->data + cb->size)
+        return -1;
 
     close(fd);
+    return 0;
 }
 
 /** Create new circular buffer.
