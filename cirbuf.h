@@ -21,25 +21,36 @@ static int create_buffer_mirror(cirbuf_t *cb)
 {
     char path[] = "/tmp/cirbuf-XXXXXX";
     int fd = mkstemp(path);
-    unlink(path);
-    ftruncate(fd, cb->size);
+    int vu = unlink(path);
+    int vf = ftruncate(fd, cb->size);
     /* FIXME: validate if mkstemp, unlink, ftruncate failed */
+    if (fd < 0)
+        return -1;
+
+    if (vu)
+        return -1;
+
+    if (vf)
+        return -1;
 
     /* create the array of data */
     cb->data = mmap(NULL, cb->size << 1, PROT_NONE, MAP_ANONYMOUS | MAP_PRIVATE,
                     -1, 0);
+
     /* FIXME: validate if cb->data != MAP_FAILED */
     if (cb->data == MAP_FAILED)
         return -1;
 
     void *address = mmap(cb->data, cb->size, PROT_READ | PROT_WRITE,
                          MAP_FIXED | MAP_SHARED, fd, 0);
+
     /* FIXME: validate if address == cb->data */
     if (address != cb->data)
         return -1;
 
     address = mmap(cb->data + cb->size, cb->size, PROT_READ | PROT_WRITE,
                    MAP_FIXED | MAP_SHARED, fd, 0);
+
     /* FIXME: validate if address == cb->data + cb->size */
     if (address != cb->data + cb->size)
         return -1;
