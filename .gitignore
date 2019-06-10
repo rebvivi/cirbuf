@@ -6,3 +6,4 @@ driver
 *.txt
 *.bin
 *.ipch
+*.vscode
