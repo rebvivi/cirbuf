@@ -4,3 +4,5 @@ driver
 *.dSYM/
 .DS_Store
 *.txt
+*.bin
+*.ipch
