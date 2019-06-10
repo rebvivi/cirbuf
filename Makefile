@@ -11,3 +11,5 @@ driver: main.c tests/test-cirbuf.c tests/unit-test.c main.c
 
 clean:
 	rm -f main.c driver
+plot: time.txt
+	gnuplot runtime.gp

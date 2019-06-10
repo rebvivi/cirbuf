@@ -3,3 +3,4 @@ main.c
 driver
 *.dSYM/
 .DS_Store
+*.txt
